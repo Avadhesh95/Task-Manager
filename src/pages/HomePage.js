@@ -3,23 +3,30 @@ import {
   Grid,
   Typography,
   Button,
+  Paper,
   Dialog,
   DialogContent,
-  Paper,
 } from "@material-ui/core";
+import { makeStyles } from "@material-ui/core/styles";
 import TaskForm from "../components/TaskForm";
 import TaskCard from "../components/TaskCard";
-import { makeStyles } from "@material-ui/core/styles";
 import { useTasks } from "../context/TaskContext";
 
 const useStyles = makeStyles((theme) => ({
   headerSection: {
     backgroundColor: "#f0f0f0",
     padding: theme.spacing(3),
+    display: "flex", // Added for inline display of title and button
+    justifyContent: "space-between", // Space between title and button
+    alignItems: "center", // Vertically center content
     marginBottom: theme.spacing(4),
   },
   taskGrid: {
     flexGrow: 1,
+    marginTop: theme.spacing(2),
+  },
+  column: {
+    padding: theme.spacing(2),
   },
 }));
 
@@ -30,6 +37,7 @@ function HomePage() {
   const [taskToEdit, setTaskToEdit] = useState(null);
 
   const handleOpen = () => {
+    setTaskToEdit(null); // Reset task to edit
     setOpen(true);
   };
 
@@ -37,18 +45,17 @@ function HomePage() {
     setOpen(false);
   };
 
-  const handleAddTask = (task, id = "") => {
-    if (id !== "") {
+  const handleAddOrEditTask = (task) => {
+    if (taskToEdit) {
       editTask(task);
-      setOpen(false);
-      return;
+      setTaskToEdit(null);
     } else {
       addTask(task);
-      setOpen(false);
     }
+    setOpen(false);
   };
 
-  const handleEditTask = (task) => {
+  const handleEditBtnClick = (task) => {
     setTaskToEdit(task);
     setOpen(true);
   };
@@ -57,24 +64,16 @@ function HomePage() {
     deleteTask(taskId);
   };
 
+  const filterTasksByStatus = (status) =>
+    tasks.filter((task) => task.status === status);
+
   return (
     <div>
       <Paper className={classes.headerSection}>
-        <Grid container justifyContent="space-between" alignItems="center">
-          <Grid item>
-            <Typography variant="h4">Task Board</Typography>
-          </Grid>
-          <Grid item>
-            <Button
-              variant="contained"
-              color="primary"
-              onClick={handleOpen}
-              className={classes.addButton}
-            >
-              Add Task
-            </Button>
-          </Grid>
-        </Grid>
+        <Typography variant="h4">Task Board</Typography>
+        <Button variant="contained" color="primary" onClick={handleOpen}>
+          Add New Task
+        </Button>
       </Paper>
 
       <Dialog
@@ -83,18 +82,26 @@ function HomePage() {
         aria-labelledby="form-dialog-title"
       >
         <DialogContent>
-          <TaskForm onSave={handleAddTask} dataToEdit={taskToEdit} />
+          <TaskForm onSave={handleAddOrEditTask} dataToEdit={taskToEdit} />
         </DialogContent>
       </Dialog>
 
-      <Grid container spacing={2} className={classes.taskGrid}>
-        {tasks.map((task) => (
-          <Grid item xs={12} sm={6} md={4} key={task.id}>
-            <TaskCard
-              task={task}
-              onDelete={handleDeleteTask}
-              onEdit={handleEditTask}
-            />
+      <Grid container className={classes.taskGrid} spacing={2}>
+        {["todo", "inprogress", "done"].map((status) => (
+          <Grid item xs={12} md={4} key={status}>
+            <Paper elevation={2} className={classes.column}>
+              <Typography variant="h6" gutterBottom>
+                {status}
+              </Typography>
+              {filterTasksByStatus(status).map((task) => (
+                <TaskCard
+                  key={task.id}
+                  task={task}
+                  onEdit={handleEditBtnClick}
+                  onDelete={handleDeleteTask}
+                />
+              ))}
+            </Paper>
           </Grid>
         ))}
       </Grid>

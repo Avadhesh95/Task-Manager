@@ -1,5 +1,11 @@
-import React, { useEffect, useState } from "react";
-import { Button, TextField, Paper, Typography } from "@material-ui/core";
+import React, { useState, useEffect } from "react";
+import {
+  Button,
+  TextField,
+  Paper,
+  Typography,
+  MenuItem,
+} from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
 
 const useStyles = makeStyles((theme) => ({
@@ -20,11 +26,18 @@ const useStyles = makeStyles((theme) => ({
 
 function TaskForm({ onSave, dataToEdit }) {
   const classes = useStyles();
-  const [task, setTask] = useState({ name: "", description: "", deadline: "" });
+  const [task, setTask] = useState({
+    name: "",
+    description: "",
+    deadline: "",
+    status: "todo",
+  });
 
   useEffect(() => {
-    setTask(dataToEdit);
-  }, []);
+    if (dataToEdit) {
+      setTask(dataToEdit);
+    }
+  }, [dataToEdit]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -33,14 +46,8 @@ function TaskForm({ onSave, dataToEdit }) {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (!task.name) return;
-    if (dataToEdit) {
-      onSave(task, dataToEdit.id);
-      return;
-    } else {
-      onSave(task);
-      setTask({ name: "", description: "", deadline: "" });
-    }
+    onSave(task);
+    setTask({ name: "", description: "", deadline: "", status: "todo" });
   };
 
   return (
@@ -48,38 +55,48 @@ function TaskForm({ onSave, dataToEdit }) {
       <Typography variant="h6">Add New Task</Typography>
       <form className={classes.form} onSubmit={handleSubmit} noValidate>
         <TextField
-          id="name"
-          label="name"
+          label="Name"
           name="name"
-          value={task?.name}
+          value={task.name}
           onChange={handleChange}
           required
         />
         <TextField
-          id="description"
           label="Description"
           name="description"
           multiline
-          // rows={1}
-          value={task?.description}
+          rows={4}
+          value={task.description}
           onChange={handleChange}
         />
         <TextField
-          id="deadline"
           type="date"
           label="Deadline"
           name="deadline"
           InputLabelProps={{ shrink: true }}
-          value={task?.deadline}
+          value={task.deadline}
           onChange={handleChange}
         />
+        {/* Status select input */}
+        <TextField
+          select
+          label="Status"
+          name="status"
+          value={task.status}
+          onChange={handleChange}
+          required
+        >
+          <MenuItem value="todo">Todo</MenuItem>
+          <MenuItem value="inprogress">In Progress</MenuItem>
+          <MenuItem value="done">Done</MenuItem>
+        </TextField>
         <Button
           type="submit"
           color="primary"
           variant="contained"
           className={classes.submitButton}
         >
-          Save Task
+          Save
         </Button>
       </form>
     </Paper>
