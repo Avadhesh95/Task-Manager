@@ -16,16 +16,16 @@ const useStyles = makeStyles((theme) => ({
   headerSection: {
     backgroundColor: "#f0f0f0",
     padding: theme.spacing(3),
-    display: "flex", // Added for inline display of title and button
-    justifyContent: "space-between", // Space between title and button
-    alignItems: "center", // Vertically center content
-    marginBottom: theme.spacing(4),
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: theme.spacing(2),
   },
   taskGrid: {
     flexGrow: 1,
-    marginTop: theme.spacing(2),
   },
   column: {
+    textAlign: "center",
     padding: theme.spacing(2),
   },
 }));
@@ -37,7 +37,7 @@ function HomePage() {
   const [taskToEdit, setTaskToEdit] = useState(null);
 
   const handleOpen = () => {
-    setTaskToEdit(null); // Reset task to edit
+    setTaskToEdit(null);
     setOpen(true);
   };
 
@@ -91,7 +91,7 @@ function HomePage() {
           <Grid item xs={12} md={4} key={status}>
             <Paper elevation={2} className={classes.column}>
               <Typography variant="h6" gutterBottom>
-                {status}
+                {status.toLocaleUpperCase()}
               </Typography>
               {filterTasksByStatus(status).map((task) => (
                 <TaskCard

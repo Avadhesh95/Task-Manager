@@ -12,17 +12,18 @@ import { makeStyles } from "@material-ui/core/styles";
 const useStyles = makeStyles({
   card: {
     minWidth: 275,
-    marginBottom: 16,
-    backgroundColor: "#f5f5f5", // Light gray background color for the card
+    marginBottom: 5,
+    marginTop: 20,
   },
   title: {
     fontSize: 14,
   },
   pos: {
-    marginBottom: 12,
+    textAlign: "left",
+    marginBottom: 13,
   },
   button: {
-    margin: "0 4px", // Adds a small margin around buttons for spacing
+    margin: "0 4px",
   },
 });
 
