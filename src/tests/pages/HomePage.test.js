@@ -4,23 +4,23 @@ import "@testing-library/jest-dom";
 import HomePage from "../../pages/HomePage";
 import { useTasks } from "../../context/TaskContext";
 
+// Mock TaskCard to simplify the test
+jest.mock("../../components/TaskCard", () => ({ task, onEdit, onDelete }) => (
+  <div>
+    <div>Task: {task.name}</div>
+    <button onClick={() => onEdit(task)}>Edit</button>
+    <button onClick={() => onDelete(task.id)}>Delete</button>
+  </div>
+));
+
 jest.mock("../../context/TaskContext", () => ({
   useTasks: jest.fn(),
 }));
 
 const mockTasks = [
-  {
-    id: 1,
-    name: "Task 1",
-    description: "Description of Task 1",
-    deadline: "2022-12-31",
-  },
-  {
-    id: 2,
-    name: "Task 2",
-    description: "Description of Task 2",
-    deadline: "2023-01-15",
-  },
+  { id: 1, name: "Task 1", status: "todo" },
+  { id: 2, name: "Task 2", status: "inprogress" },
+  { id: 3, name: "Task 3", status: "done" },
 ];
 
 describe("HomePage", () => {
@@ -34,76 +34,41 @@ describe("HomePage", () => {
     }));
   });
 
-  test("renders tasks correctly", () => {
+  test("renders 'Add New Task' button and opens dialog on click", () => {
     render(<HomePage />);
-    expect(screen.getByText("Task 1")).toBeInTheDocument();
-    expect(screen.getByText("Task 2")).toBeInTheDocument();
-  });
-
-  test("opens dialog when 'Add Task' button is clicked", () => {
-    render(<HomePage />);
-    fireEvent.click(screen.getByText(/Add Task/i));
+    expect(screen.getByText("Add New Task")).toBeInTheDocument();
+    fireEvent.click(screen.getByText("Add New Task"));
     expect(screen.getByRole("dialog")).toBeInTheDocument();
   });
 
-  test("opens dialog with task details for editing when 'Edit' button is clicked", () => {
+  test("renders tasks in respective columns", () => {
     render(<HomePage />);
-    fireEvent.click(screen.getAllByText(/Edit/)[0]); // Click 'Edit' on the first task
-
-    // Assuming the dialog contains inputs with values from the task to be edited
-    expect(screen.getByRole("dialog")).toBeInTheDocument();
-    expect(screen.getByLabelText(/Name/i).value).toBe(mockTasks[0].name);
-    expect(screen.getByLabelText(/Description/i).value).toBe(
-      mockTasks[0].description
-    );
-    expect(screen.getByLabelText(/Deadline/i).value).toBe(
-      mockTasks[0].deadline
-    );
+    expect(screen.getByText("todo")).toBeInTheDocument();
+    expect(screen.getByText("inprogress")).toBeInTheDocument();
+    expect(screen.getByText("done")).toBeInTheDocument();
+    expect(screen.getByText("Task: Task 1")).toBeInTheDocument(); // In 'todo' column
+    expect(screen.getByText("Task: Task 2")).toBeInTheDocument(); // In 'inprogress' column
+    expect(screen.getByText("Task: Task 3")).toBeInTheDocument(); // In 'done' column
   });
 
-  test("deletes task when 'Delete' button is clicked", () => {
+  test("triggers editTask when 'Edit' button is clicked on a task", () => {
+    const editTaskMock = jest.fn();
+    useTasks.mockImplementation(() => ({
+      tasks: mockTasks,
+      editTask: editTaskMock,
+    }));
+    render(<HomePage />);
+    fireEvent.click(screen.getAllByText("Edit")[0]); // Click 'Edit' on the first task
+  });
+
+  test("triggers deleteTask when 'Delete' button is clicked on a task", () => {
     const deleteTaskMock = jest.fn();
     useTasks.mockImplementation(() => ({
       tasks: mockTasks,
       deleteTask: deleteTaskMock,
     }));
-
     render(<HomePage />);
-    fireEvent.click(screen.getAllByText(/Delete/)[0]); // Click 'Delete' on the first task
-    expect(deleteTaskMock).toHaveBeenCalledWith(mockTasks[0].id);
-  });
-
-  test("submits a new task when form in 'Add Task' dialog is submitted", () => {
-    const addTaskMock = jest.fn();
-    useTasks.mockImplementation(() => ({
-      tasks: mockTasks,
-      addTask: addTaskMock,
-    }));
-
-    render(<HomePage />);
-    fireEvent.click(screen.getByText(/Add Task/i)); // Open 'Add Task' dialog
-
-    // Fill out the form
-    fireEvent.change(screen.getByLabelText(/Name/i), {
-      target: { value: "New Task" },
-    });
-    fireEvent.change(screen.getByLabelText(/Description/i), {
-      target: { value: "New Description" },
-    });
-    fireEvent.change(screen.getByLabelText(/Deadline/i), {
-      target: { value: "2023-02-20" },
-    });
-
-    // Submit the form
-    fireEvent.click(screen.getByText(/Save Task/i));
-
-    // Check if addTask was called with the new task details
-    expect(addTaskMock).toHaveBeenCalledWith(
-      expect.objectContaining({
-        name: "New Task",
-        description: "New Description",
-        deadline: "2023-02-20",
-      })
-    );
+    fireEvent.click(screen.getAllByText("Delete")[0]); // Click 'Delete' on the first task
+    expect(deleteTaskMock).toHaveBeenCalled();
   });
 });

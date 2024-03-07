@@ -8,7 +8,8 @@ const mockTask = {
   id: 1,
   name: "Task 1",
   description: "Description of Task 1",
-  deadline: "2022-12-31",
+  deadline: "2024-12-31",
+  status: "todo",
 };
 
 describe("TaskCard Component", () => {
@@ -17,11 +18,9 @@ describe("TaskCard Component", () => {
       <TaskCard task={mockTask} onEdit={() => {}} onDelete={() => {}} />
     );
 
-    // Check if the task name and description are rendered
     expect(screen.getByText(mockTask.name)).toBeInTheDocument();
     expect(screen.getByText(mockTask.description)).toBeInTheDocument();
 
-    // Check if the formatted deadline is rendered
     const formattedDeadline = new Date(mockTask.deadline).toLocaleDateString();
     expect(
       screen.getByText(`Deadline: ${formattedDeadline}`)

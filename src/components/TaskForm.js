@@ -55,6 +55,7 @@ function TaskForm({ onSave, dataToEdit }) {
       <Typography variant="h6">Add New Task</Typography>
       <form className={classes.form} onSubmit={handleSubmit} noValidate>
         <TextField
+          id="name"
           label="Name"
           name="name"
           value={task.name}
@@ -62,6 +63,7 @@ function TaskForm({ onSave, dataToEdit }) {
           required
         />
         <TextField
+          id="description"
           label="Description"
           name="description"
           multiline
@@ -70,6 +72,7 @@ function TaskForm({ onSave, dataToEdit }) {
           onChange={handleChange}
         />
         <TextField
+          id="deadline"
           type="date"
           label="Deadline"
           name="deadline"
@@ -77,9 +80,9 @@ function TaskForm({ onSave, dataToEdit }) {
           value={task.deadline}
           onChange={handleChange}
         />
-        {/* Status select input */}
         <TextField
           select
+          id="status"
           label="Status"
           name="status"
           value={task.status}
